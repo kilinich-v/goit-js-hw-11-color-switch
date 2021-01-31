@@ -14,27 +14,40 @@ const buttons = {
     stop: document.querySelector('[data-action=stop]'),
 }
 
-buttons.start.addEventListener('click', onStart);
-buttons.stop.addEventListener('click', onStop);
+class RandomColors {
+    constructor(colors, interval) {
+        this.colors = colors;
+        this.interval = interval;
+        this.intervalId = null;
+        this.isActive = false;
+    }
 
-let colorInterval = null;
+    start() {
+        if (this.isActive) {
+            return;
+        }
+        this.changeColor();
+        this.isActive = true;
+    }
 
-const randomIntegerFromInterval = (min, max) => {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-};
+    stop() {
+        clearInterval(this.intervalId);
+        this.isActive = false;
+    }
 
-function onStart() {
-    changeColor();
+    changeColor() {
+        this.intervalId = setInterval(() => {
+            let newColorIndex = this.randomIntegerFromInterval(0, (this.colors.length - 1));
+            document.body.style.backgroundColor = colors[newColorIndex];
+        }, this.interval);
+    }
+
+    randomIntegerFromInterval(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
 }
 
-function onStop() {
-    clearInterval(colorInterval);
-}
+const changeColors = new RandomColors(colors, 1000);
 
-function changeColor() {
-    const interval = 1000;
-    colorInterval = setInterval(() => {
-        let newColorIndex = randomIntegerFromInterval(0, (colors.length - 1));
-        document.body.style.backgroundColor = colors[newColorIndex];
-    }, interval);
-}
+buttons.start.addEventListener('click', changeColors.start.bind(changeColors));
+buttons.stop.addEventListener('click', changeColors.stop.bind(changeColors));
